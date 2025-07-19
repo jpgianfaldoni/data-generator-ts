@@ -50,13 +50,13 @@ The frontend is planned for future development. See `frontend/README.md` for det
 ✅ **Databricks Compatible**: Supports Databricks SQL syntax  
 ✅ **TypeScript**: Full type safety and modern development experience  
 
-## 📋 Planned Frontend Features
+## 🎨 Frontend Features
 
-🚧 **Schema Builder**: Visual interface for creating table schemas  
-🚧 **Live Preview**: Real-time SQL generation preview  
-🚧 **File Management**: Upload, edit, and organize YAML files  
-🚧 **Export Options**: Download generated SQL files  
-🚧 **Responsive Design**: Modern, mobile-friendly interface  
+✅ **Schema Builder**: Visual YAML editor with Monaco Editor  
+✅ **Live Preview**: Real-time SQL generation and preview  
+✅ **File Management**: Edit, save, and download YAML/SQL files  
+✅ **Export Options**: Download generated SQL files automatically  
+✅ **Responsive Design**: Modern glassmorphism UI that works on all devices  
 
 ## 🛠️ Development
 
@@ -71,7 +71,12 @@ npm test                                  # Run tests
 
 ### Frontend Development
 
-The frontend is yet to be developed. Technology stack to be determined.
+```bash
+cd frontend
+npm install                      # Install dependencies
+npm run dev                      # Start development server
+npm run build                    # Build for production
+```
 
 ## 📚 Documentation
 
