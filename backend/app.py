@@ -130,15 +130,15 @@ def serve_frontend(path):
             'test_query': '/api/test-query'
         })
 
+# Optional: For development only
 if __name__ == '__main__':
-    # Print startup info
+    print("⚠️  Running in development mode - use Gunicorn for production")
     print("🚀 Starting Databricks SQL Query API...")
     print(f"Warehouse ID: {os.getenv('DATABRICKS_WAREHOUSE_ID')}")
     print(f"Host: {os.getenv('DATABRICKS_HOST', 'Not set')}")
     
-    # Run the Flask app
     app.run(
-        host='0.0.0.0',  # Required for Databricks Apps
-        port=int(os.getenv('PORT', 8000)),  # Use PORT from environment
+        host='0.0.0.0',
+        port=int(os.getenv('PORT', 8000)),
         debug=True
-    ) 
+    )
