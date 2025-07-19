@@ -1,94 +1,162 @@
-# Data Generator - Full Stack Application
+# Data Generator - Frontend
 
-A TypeScript-based Data Generator for Databricks that reads YAML table schemas and generates SQL CREATE TABLE and INSERT statements with random test data.
+A modern React TypeScript frontend for the Data Generator that allows users to edit YAML table schemas and generate SQL CREATE and INSERT statements.
 
-## 🏗️ Project Structure
+## ✨ Features
 
-This project is organized into separate frontend and backend components:
+- 🎨 **Modern UI**: Beautiful glassmorphism design with gradient backgrounds
+- 📝 **YAML Editor**: Monaco Editor with syntax highlighting and validation  
+- 🔍 **Live SQL Preview**: Real-time SQL generation with tabbed display
+- 💾 **File Downloads**: Automatic download of generated SQL files
+- 📋 **Copy to Clipboard**: One-click copying of SQL statements
+- 📱 **Responsive**: Works on desktop, tablet, and mobile devices
+- 🚀 **Fast**: Built with Vite for lightning-fast development and builds
 
-```
-data-generator-ts/
-├── backend/                   # TypeScript/Node.js backend
-│   ├── src/                  # Backend source code
-│   ├── examples/             # YAML schema examples
-│   ├── output/               # Generated SQL files
-│   ├── package.json          # Backend dependencies
-│   └── README.md             # Backend documentation
-├── frontend/                  # Frontend application (TBD)
-│   └── README.md             # Frontend documentation
-├── .gitignore                # Git ignore patterns
-└── README.md                 # This file
-```
+## 🛠️ Technology Stack
 
-## 🚀 Quick Start
+- **Framework**: React 18 with TypeScript
+- **Build Tool**: Vite 7
+- **Editor**: Monaco Editor (VS Code's editor)
+- **YAML Parser**: js-yaml
+- **Notifications**: React Hot Toast
+- **Styling**: CSS with custom glassmorphism design
+- **Icons**: Emoji for a fun, accessible interface
 
-### Backend Setup
+## 📦 Installation & Setup
 
 ```bash
-# Navigate to backend directory
-cd backend
+# Navigate to frontend directory
+cd frontend
 
 # Install dependencies
 npm install
 
-# Build the project
+# Start development server
+npm run dev
+
+# Build for production
 npm run build
 
-# Generate SQL from example
-npm start examples/example_table.yaml
+# Preview production build
+npm run preview
 ```
 
-### Frontend Setup
+## 🚀 Usage
 
-The frontend is planned for future development. See `frontend/README.md` for details.
+1. **Edit YAML Schema**: Use the Monaco editor to create or modify table schemas
+2. **Load Example**: Click "Load Example" to see a sample schema
+3. **Generate SQL**: Click "✨ Create SQL" to generate CREATE and INSERT statements
+4. **View Results**: Toggle between CREATE and INSERT tabs to see generated SQL
+5. **Download Files**: SQL files are automatically downloaded when generated
+6. **Copy SQL**: Use the copy buttons to copy SQL to clipboard
 
-## 🔧 Backend Features
+## 📝 YAML Schema Format
 
-✅ **CLI Interface**: Command-line tool for SQL generation  
-✅ **YAML Schema Input**: Define table structures in YAML  
-✅ **Smart Data Generation**: Realistic random data based on column types  
-✅ **Databricks Compatible**: Supports Databricks SQL syntax  
-✅ **TypeScript**: Full type safety and modern development experience  
-
-## 🎨 Frontend Features
-
-✅ **Schema Builder**: Visual YAML editor with Monaco Editor  
-✅ **Live Preview**: Real-time SQL generation and preview  
-✅ **File Management**: Edit, save, and download YAML/SQL files  
-✅ **Export Options**: Download generated SQL files automatically  
-✅ **Responsive Design**: Modern glassmorphism UI that works on all devices  
-
-## 🛠️ Development
-
-### Backend Development
-
-```bash
-cd backend
-npm run dev examples/example_table.yaml  # Watch mode
-npm run lint                              # Code linting
-npm test                                  # Run tests
+```yaml
+table_name: "your_table_name"
+catalog: "main"          # Optional
+schema: "gold"           # Optional  
+rows: 5                  # Number of INSERT rows to generate
+columns:
+  - name: "column_name"
+    type: "DATA_TYPE"
+    nullable: true/false
+    comment: "optional comment"
+    primary_key: true/false    # Optional, for auto-increment
 ```
 
-### Frontend Development
+## 🗃️ Supported Data Types
 
-```bash
-cd frontend
-npm install                      # Install dependencies
-npm run dev                      # Start development server
-npm run build                    # Build for production
+- **Numeric**: `BIGINT`, `INT`, `SMALLINT`, `TINYINT`, `DECIMAL`, `DOUBLE`, `FLOAT`
+- **Text**: `STRING`, `VARCHAR(n)`
+- **Boolean**: `BOOLEAN`  
+- **Date/Time**: `DATE`, `TIMESTAMP`
+
+## 🏗️ Project Structure
+
+```
+frontend/
+├── src/
+│   ├── components/
+│   │   ├── YamlEditor.tsx     # Monaco YAML editor component
+│   │   └── SqlDisplay.tsx     # SQL preview and display component
+│   ├── services/
+│   │   └── sqlGenerator.ts    # Frontend SQL generation logic
+│   ├── types/
+│   │   └── schema.ts          # TypeScript interfaces
+│   ├── App.tsx                # Main application component
+│   ├── App.css                # Modern glassmorphism styles
+│   └── main.tsx               # React entry point
+├── public/                    # Static assets
+├── dist/                      # Production build output
+├── package.json               # Dependencies and scripts
+├── tsconfig.json              # TypeScript configuration
+├── vite.config.ts             # Vite configuration
+└── README.md                  # This file
 ```
 
-## 📚 Documentation
+## 🎯 Key Components
 
-- **Backend**: See `backend/README.md` for detailed backend documentation
-- **Frontend**: See `frontend/README.md` for frontend plans and setup
+### YamlEditor
+- Monaco Editor with YAML syntax highlighting
+- Dark theme with proper indentation
+- Real-time validation and error reporting
+
+### SqlDisplay  
+- Tabbed interface for CREATE and INSERT SQL
+- Copy to clipboard functionality
+- Download SQL files
+- Empty state with feature descriptions
+
+### SqlGeneratorService
+- Frontend SQL generation (placeholder data)
+- Matches backend logic for consistency
+- Handles all supported Databricks data types
+
+## 🎨 Design Features
+
+- **Glassmorphism**: Modern glass-like UI with backdrop blur
+- **Gradient Backgrounds**: Purple-blue gradient theme
+- **Responsive Layout**: CSS Grid with mobile-first design
+- **Smooth Animations**: Hover effects and transitions
+- **Accessibility**: High contrast, proper focus states
+- **Professional Typography**: System font stack for readability
+
+## 🔧 Development Scripts
+
+- `npm run dev` - Start development server with hot reload
+- `npm run build` - Build for production  
+- `npm run preview` - Preview production build locally
+- `npm run lint` - Run ESLint (if configured)
+
+## 🚦 Getting Started
+
+1. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+2. Open your browser to `http://localhost:5173`
+
+3. Try the example by clicking "Load Example"
+
+4. Modify the YAML schema in the left editor
+
+5. Click "✨ Create SQL" to generate statements
+
+6. View the results in the right panel
+
+## 🔗 Backend Integration
+
+This frontend works independently but is designed to complement the backend located in `../backend/`. The SQL generation logic matches the backend for consistency.
 
 ## 🤝 Contributing
 
-1. Choose your area: `backend/` for API/CLI work, `frontend/` for UI work
-2. Make your changes in the appropriate directory
-3. Follow the existing code style and conventions
-4. Test your changes thoroughly
+1. Follow the existing code style and component patterns
+2. Use TypeScript for all new code
+3. Test on multiple screen sizes
+4. Ensure accessibility standards
+5. Update this README for any new features
 
 ## 📄 License
 
@@ -96,4 +164,4 @@ MIT License - feel free to use this project for any purpose.
 
 ---
 
-**Current Status**: Backend is fully functional. Frontend development is planned for the future. 
+**Status**: ✅ Complete and functional frontend application
