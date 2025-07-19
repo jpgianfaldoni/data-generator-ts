@@ -1,1 +1,5 @@
-command: ['npm', 'run', 'dev']
+command: ["npx", "concurrently", "npm:run dev:node", "python app.py"]
+
+env:
+  - name: "DATABRICKS_WAREHOUSE_ID"
+    valueFrom: "sql_warehouse"
