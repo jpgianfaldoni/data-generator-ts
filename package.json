@@ -12,7 +12,8 @@
     "react-dom": "^18.2.0",
     "concurrently": "^8.2.2",
     "react-hot-toast": "^2.4.1",
-    "yaml": "^2.2.2"
+    "yaml": "^2.2.2",
+    "monaco-editor/react": "^0.44.0"
   },
    "devDependencies": {
     "@types/react": "^18.2.0",
