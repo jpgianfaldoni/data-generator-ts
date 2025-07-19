@@ -3,14 +3,9 @@
   "version": "1.0.0",
   "description": "Data Generator - Full Stack Databricks App",
   "scripts": {
-    "install:backend": "cd backend && pip install -r requirements.txt",
-    "install:frontend": "cd frontend && npm install",
-    "build:frontend": "cd frontend && npm run build",
-    "dev:frontend": "cd frontend && npm run dev",
-    "dev:backend": "cd backend && python app.py",
-    "start": "concurrently --names 'API,WEB' --prefix-colors 'blue,green' 'npm run dev:backend' 'npm run dev:frontend'",
     "build": "npm run build:frontend",
-    "setup": "npm run install:backend && npm run install:frontend"
+    "build:frontend": "vite build frontend --emptyOutDir",
+    "dev": "vite frontend"
   },
   "dependencies": {
     "concurrently": "^8.2.2"

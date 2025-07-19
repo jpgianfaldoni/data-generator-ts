@@ -1,15 +1,23 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { fileURLToPath } from 'url'
+import path from 'path'
 
-// https://vitejs.dev/config/
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
 export default defineConfig({
   plugins: [react()],
-  server: {
-    host: '0.0.0.0',
-    port: 5173
+  build: {
+    outDir: path.resolve(__dirname, '../backend/static'),
+    emptyOutDir: true,
+    assetsDir: 'assets'
   },
-  preview: {
-    host: '0.0.0.0',
-    port: 5173
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8000',
+        changeOrigin: true
+      }
+    }
   }
-})
+}) 
