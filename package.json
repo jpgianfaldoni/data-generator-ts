@@ -1,37 +1,25 @@
 {
-  "name": "frontend",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "name": "data-generator-app",
+  "version": "1.0.0",
+  "description": "Data Generator - Full Stack Databricks App",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "install:backend": "cd backend && pip install -r requirements.txt",
+    "install:frontend": "cd frontend && npm install",
+    "build:frontend": "cd frontend && npm run build",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && python app.py",
+    "start": "concurrently --names 'API,WEB' --prefix-colors 'blue,green' 'npm run dev:backend' 'npm run dev:frontend'",
+    "build": "npm run build:frontend",
+    "setup": "npm run install:backend && npm run install:frontend"
   },
   "dependencies": {
-    "@faker-js/faker": "^9.9.0",
-    "@monaco-editor/react": "^4.7.0",
-    "@types/fs-extra": "^11.0.4",
-    "axios": "^1.10.0",
-    "fs-extra": "^11.3.0",
-    "moment": "^2.30.1",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "react-hot-toast": "^2.5.2",
-    "yaml": "^2.8.0"
+    "concurrently": "^8.2.2"
   },
-  "devDependencies": {
-    "@eslint/js": "^9.30.1",
-    "@types/react": "^19.1.8",
-    "@types/react-dom": "^19.1.6",
-    "@vitejs/plugin-react": "^4.6.0",
-    "eslint": "^9.30.1",
-    "eslint-plugin-react-hooks": "^5.2.0",
-    "eslint-plugin-react-refresh": "^0.4.20",
-    "globals": "^16.3.0",
-    "typescript": "~5.8.3",
-    "typescript-eslint": "^8.35.1",
-    "vite": "^7.0.4"
-  }
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "keywords": ["databricks", "sql", "generator", "react", "flask", "python"],
+  "author": "Data Generator Team",
+  "license": "MIT"
 }
