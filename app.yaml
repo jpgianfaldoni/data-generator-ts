@@ -1,4 +1,33 @@
-command: ["uvicorn", "backend.app:app"]
+name: data-generator
+display_name: "Data Generator - SQL Schema Builder"
+description: "Generate and execute SQL CREATE/INSERT statements from YAML schemas"
+
 env:
   - name: "DATABRICKS_WAREHOUSE_ID"
     valueFrom: "sql_warehouse"
+
+resources:
+  - name: python
+    description: "Python dependencies for Flask API"
+    file_path: backend/requirements.txt
+
+  - name: node
+    description: "Node.js dependencies for React frontend"
+    file_path: frontend/package.json
+
+command: |
+  # Install Python dependencies
+  echo "📦 Installing Python dependencies..."
+  pip install -r backend/requirements.txt
+  
+  # Install Node.js dependencies and build frontend
+  echo "📦 Installing Node.js dependencies..."
+  cd frontend && npm install
+  
+  echo "🏗️ Building React frontend..."
+  npm run build
+  cd ..
+  
+  # Start Python API server
+  echo "🚀 Starting Data Generator application..."
+  python backend/app.py
