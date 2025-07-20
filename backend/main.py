@@ -57,16 +57,7 @@ async def health_check():
     logger.info("Health check at /api/health")
     return {"status": "healthy"}
 
-@app.get("/api/data")
-async def get_data():
-    logger.info("Data requested at /api/data")
-    data = [{"x": x, "y": 2 ** x} for x in range(30)]
-    return {
-        "data": data,
-        "title": "Hello world!",
-        "x_title": "Apps",
-        "y_title": "Fun with data"
-    }
+
 
 @app.post("/api/execute-sql")
 async def execute_sql(request: SQLQueryRequest) -> SQLQueryResponse:
