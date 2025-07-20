@@ -1,159 +1,217 @@
-import { useState } from 'react';
-import { Toaster, toast } from 'react-hot-toast';
-import * as YAML from 'yaml';
-import type { TableSchema } from './types/schema';
-import { SqlGeneratorService } from './services/sqlGenerator';
-import YamlEditor from './components/YamlEditor';
-import SqlDisplay from './components/SqlDisplay';
-import './App.css';
+import { useState, useEffect } from 'react'
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js'
+import { Scatter } from 'react-chartjs-2'
+import './App.css'
 
-const defaultYaml = `table_name: "users"
-catalog: "main"
-schema: "gold"
-rows: 5
-columns:
-  - name: "id"
-    type: "BIGINT"
-    nullable: false
-    primary_key: true
-    comment: "User ID"
-  - name: "username"
-    type: "VARCHAR(50)"
-    nullable: false
-    comment: "Username"
-  - name: "email"
-    type: "VARCHAR(100)"
-    nullable: false
-    comment: "Email address"
-  - name: "age"
-    type: "INT"
-    nullable: true
-    comment: "User age"
-  - name: "is_active"
-    type: "BOOLEAN"
-    nullable: false
-    comment: "Is user active"
-  - name: "created_at"
-    type: "TIMESTAMP"
-    nullable: false
-    comment: "Creation timestamp"`;
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+)
 
-function App() {
-  const [yamlContent, setYamlContent] = useState<string>(defaultYaml);
-  const [createSql, setCreateSql] = useState<string>('');
-  const [insertSql, setInsertSql] = useState<string>('');
-  const [isGenerating, setIsGenerating] = useState<boolean>(false);
-
-  const sqlGenerator = new SqlGeneratorService();
-
-  const handleGenerateSQL = () => {
-    setIsGenerating(true);
-    
-    try {
-      // Parse YAML
-      const tableSchema = YAML.parse(yamlContent) as TableSchema;
-      
-      // Validate required fields
-      if (!tableSchema.table_name) {
-        throw new Error('Missing required field: table_name');
-      }
-      if (!tableSchema.columns || !Array.isArray(tableSchema.columns) || tableSchema.columns.length === 0) {
-        throw new Error('Missing or empty required field: columns');
-      }
-      if (typeof tableSchema.rows !== 'number') {
-        tableSchema.rows = 0;
-      }
-
-      // Generate SQL
-      const result = sqlGenerator.generateSqlFiles(tableSchema, tableSchema.table_name);
-      
-      setCreateSql(result.createSql);
-      setInsertSql(result.insertSql || '');
-
-      // Save files (simulate saving)
-      const createBlob = new Blob([result.createSql], { type: 'text/sql' });
-      const createUrl = URL.createObjectURL(createBlob);
-      const createLink = document.createElement('a');
-      createLink.href = createUrl;
-      createLink.download = result.createOutputFile;
-      createLink.click();
-      URL.revokeObjectURL(createUrl);
-
-      if (result.insertSql && result.insertOutputFile) {
-        const insertBlob = new Blob([result.insertSql], { type: 'text/sql' });
-        const insertUrl = URL.createObjectURL(insertBlob);
-        const insertLink = document.createElement('a');
-        insertLink.href = insertUrl;
-        insertLink.download = result.insertOutputFile;
-        insertLink.click();
-        URL.revokeObjectURL(insertUrl);
-      }
-
-      toast.success('SQL generated and files downloaded successfully!');
-      
-    } catch (error) {
-      console.error('Error generating SQL:', error);
-      toast.error(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  const handleLoadExample = () => {
-    setYamlContent(defaultYaml);
-    setCreateSql('');
-    setInsertSql('');
-    toast.success('Example loaded!');
-  };
-
-  return (
-    <div className="app">
-      <Toaster position="top-right" />
-      
-      <header className="app-header">
-        <h1>🚀 Data Generator - Frontend</h1>
-        <p>Edit YAML schema and generate SQL CREATE and INSERT statements</p>
-      </header>
-
-      <main className="app-main">
-        <div className="editor-section">
-          <div className="section-header">
-            <h2>📝 YAML Schema Editor</h2>
-            <div className="section-actions">
-              <button 
-                onClick={handleLoadExample}
-                className="btn btn-secondary"
-              >
-                Load Example
-              </button>
-              <button 
-                onClick={handleGenerateSQL}
-                disabled={isGenerating}
-                className="btn btn-primary"
-              >
-                {isGenerating ? '⏳ Generating...' : '✨ Create SQL'}
-              </button>
-            </div>
-          </div>
-          <YamlEditor 
-            value={yamlContent}
-            onChange={setYamlContent}
-          />
-        </div>
-
-        <div className="results-section">
-          <SqlDisplay 
-            createSql={createSql}
-            insertSql={insertSql}
-          />
-        </div>
-      </main>
-
-      <footer className="app-footer">
-        <p>Built with ❤️ using React + TypeScript + Vite</p>
-      </footer>
-    </div>
-  );
+interface ApiResponse {
+  message: string
 }
 
-export default App;
+interface DataPoint {
+  x: number
+  y: number
+}
+
+interface ChartData {
+  data: DataPoint[]
+  title: string
+  x_title: string
+  y_title: string
+}
+
+interface SQLQueryResponse {
+  success: boolean
+  message: string
+  error?: string
+}
+
+function App() {
+  const [apiData, setApiData] = useState<ApiResponse | null>(null)
+  const [chartData, setChartData] = useState<ChartData | null>(null)
+  const [loading, setLoading] = useState(true)
+  
+  // SQL Query states
+  const [sqlQuery, setSqlQuery] = useState('')
+  const [sqlLoading, setSqlLoading] = useState(false)
+  const [sqlResponse, setSqlResponse] = useState<SQLQueryResponse | null>(null)
+
+  useEffect(() => {
+    // Fetch both hello message and chart data
+    Promise.all([
+      fetch('/api/hello').then(response => response.json()),
+      fetch('/api/data').then(response => response.json())
+    ])
+      .then(([helloData, dataResponse]) => {
+        setApiData(helloData)
+        setChartData(dataResponse)
+        setLoading(false)
+      })
+      .catch(error => {
+        console.error('Error:', error)
+        setLoading(false)
+      })
+  }, [])
+
+  const executeSqlQuery = async () => {
+    if (!sqlQuery.trim()) {
+      setSqlResponse({
+        success: false,
+        message: 'Query execution failed',
+        error: 'Please enter a SQL query'
+      })
+      return
+    }
+
+    setSqlLoading(true)
+    setSqlResponse(null)
+
+    try {
+      const response = await fetch('/api/execute-sql', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query: sqlQuery }),
+      })
+
+      const result: SQLQueryResponse = await response.json()
+      setSqlResponse(result)
+    } catch (error) {
+      setSqlResponse({
+        success: false,
+        message: 'Query execution failed',
+        error: `Network error: ${error}`
+      })
+    } finally {
+      setSqlLoading(false)
+    }
+  }
+
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        display: false,
+      },
+      title: {
+        display: true,
+        text: chartData?.title || 'Hello world!',
+        font: {
+          size: 20
+        }
+      },
+    },
+    scales: {
+      x: {
+        display: true,
+        title: {
+          display: true,
+          text: chartData?.x_title || 'Apps'
+        }
+      },
+      y: {
+        display: true,
+        title: {
+          display: true,
+          text: chartData?.y_title || 'Fun with data'
+        }
+      }
+    }
+  }
+
+  const scatterData = {
+    datasets: [
+      {
+        data: chartData?.data || [],
+        backgroundColor: 'rgba(255, 99, 132, 0.8)',
+        borderColor: 'rgba(255, 99, 132, 1)',
+        pointRadius: 4,
+      },
+    ],
+  }
+
+  return (
+    <div className="App">
+      <header className="App-header">
+        <h1>🚀 Node.js + FastAPI Hello World</h1>
+        
+        {loading ? (
+          <p>Loading...</p>
+        ) : (
+          <div className="content">
+            {apiData ? (
+              <div className="api-info">
+                <p className="message">{apiData.message}</p>
+              </div>
+            ) : (
+              <p>Failed to connect to API</p>
+            )}
+            
+            {chartData && (
+              <div className="chart-container">
+                <Scatter data={scatterData} options={chartOptions} />
+              </div>
+            )}
+
+            {/* SQL Query Interface */}
+            <div className="sql-interface">
+              <h2>🔧 SQL Query Executor</h2>
+              <div className="sql-form">
+                <textarea
+                  value={sqlQuery}
+                  onChange={(e) => setSqlQuery(e.target.value)}
+                  placeholder="Enter your SQL query here (CREATE TABLE, INSERT, etc.)..."
+                  className="sql-textarea"
+                  rows={6}
+                  disabled={sqlLoading}
+                />
+                <button
+                  onClick={executeSqlQuery}
+                  disabled={sqlLoading || !sqlQuery.trim()}
+                  className="sql-execute-btn"
+                >
+                  {sqlLoading ? 'Executing...' : 'Execute Query'}
+                </button>
+              </div>
+
+              {/* SQL Response Display */}
+              {sqlResponse && (
+                <div className={`sql-response ${sqlResponse.success ? 'success' : 'error'}`}>
+                  <h3>{sqlResponse.success ? '✅ Success' : '❌ Error'}</h3>
+                  <p><strong>Message:</strong> {sqlResponse.message}</p>
+                  {sqlResponse.error && (
+                    <div className="error-details">
+                      <strong>Error Details:</strong>
+                      <pre>{sqlResponse.error}</pre>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </header>
+    </div>
+  )
+}
+
+export default App 
