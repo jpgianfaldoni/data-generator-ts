@@ -7,6 +7,10 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from databricks import sql
 from databricks.sdk.core import Config
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 from sqlgen import TableSchema, Column
 from data_generator import generate_insert_sql
 

@@ -2,6 +2,10 @@ from typing import Dict
 import random
 from datetime import datetime, timedelta
 from faker import Faker
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 from sqlgen import TableSchema, build_table_name
 
 # Initialize Faker instance
