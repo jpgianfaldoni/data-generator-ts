@@ -1,9 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import './App.css'
 
-interface ApiResponse {
-  message: string
-}
+
 
 
 
@@ -21,13 +19,8 @@ interface GenerateFromYAMLResponse {
 }
 
 function App() {
-  const [apiData, setApiData] = useState<ApiResponse | null>(null)
-  const [loading, setLoading] = useState(true)
   
-  // SQL Query states
-  const [sqlQuery, setSqlQuery] = useState('')
-  const [sqlLoading, setSqlLoading] = useState(false)
-  const [sqlResponse, setSqlResponse] = useState<SQLQueryResponse | null>(null)
+
   
   // YAML to SQL states
   const [yamlContent, setYamlContent] = useState(`table_name: customers
@@ -62,54 +55,9 @@ columns:
   const [createResponse, setCreateResponse] = useState<SQLQueryResponse | null>(null)
   const [insertResponse, setInsertResponse] = useState<SQLQueryResponse | null>(null)
 
-  useEffect(() => {
-    // Fetch hello message
-    fetch('/api/hello')
-      .then(response => response.json())
-      .then(helloData => {
-        setApiData(helloData)
-        setLoading(false)
-      })
-      .catch(error => {
-        console.error('Error:', error)
-        setLoading(false)
-      })
-  }, [])
 
-  const executeSqlQuery = async () => {
-    if (!sqlQuery.trim()) {
-      setSqlResponse({
-        success: false,
-        message: 'Query execution failed',
-        error: 'Please enter a SQL query'
-      })
-      return
-    }
 
-    setSqlLoading(true)
-    setSqlResponse(null)
 
-    try {
-      const response = await fetch('/api/execute-sql', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ query: sqlQuery }),
-      })
-
-      const result: SQLQueryResponse = await response.json()
-      setSqlResponse(result)
-    } catch (error) {
-      setSqlResponse({
-        success: false,
-        message: 'Query execution failed',
-        error: `Network error: ${error}`
-      })
-    } finally {
-      setSqlLoading(false)
-    }
-  }
 
   const generateFromYAML = async () => {
     if (!yamlContent.trim()) {
@@ -219,32 +167,35 @@ columns:
   return (
     <div className="App">
       <header className="App-header">
-        <h1>🚀 Node.js + FastAPI Hello World</h1>
-        
-        {loading ? (
-          <p>Loading...</p>
-        ) : (
-          <div className="content">
-            {apiData ? (
-              <div className="api-info">
-                <p className="message">{apiData.message}</p>
-              </div>
-            ) : (
-              <p>Failed to connect to API</p>
-            )}
+        <div className="content">
 
-            {/* YAML to SQL Generator */}
-            <div className="yaml-interface">
-              <h2>📝 YAML Schema to SQL Generator</h2>
-              <div className="yaml-form">
-                <textarea
-                  value={yamlContent}
-                  onChange={(e) => setYamlContent(e.target.value)}
-                  placeholder="Enter your YAML schema definition here..."
-                  className="yaml-textarea"
-                  rows={20}
-                  disabled={generateLoading}
-                />
+            {/* Three Column Layout: YAML | CREATE | INSERT */}
+            <div className="three-column-container">
+              
+              {/* YAML Schema Editor */}
+              <div className="yaml-section">
+                <div className="yaml-header">
+                  <h3>YAML Schema</h3>
+                </div>
+                <div className="yaml-content-area">
+                  <textarea
+                    value={yamlContent}
+                    onChange={(e) => setYamlContent(e.target.value)}
+                    placeholder="Enter your YAML schema definition here..."
+                    className="yaml-textarea"
+                    rows={20}
+                    disabled={generateLoading}
+                  />
+                </div>
+
+                {/* Generation Error Display */}
+                {generatedSQL && !generatedSQL.success && (
+                  <div className="generation-error">
+                    <h4>Generation Failed</h4>
+                    <p><strong>Error:</strong> {generatedSQL.error}</p>
+                  </div>
+                )}
+
                 <button
                   onClick={generateFromYAML}
                   disabled={generateLoading || !yamlContent.trim()}
@@ -254,114 +205,74 @@ columns:
                 </button>
               </div>
 
-              {/* Generated SQL Display */}
-              {generatedSQL && (
-                <div className={`generation-response ${generatedSQL.success ? 'success' : 'error'}`}>
-                  {generatedSQL.success ? (
-                    <div className="generated-sql">
-                      <h3>✅ SQL Generated Successfully</h3>
-                      
-                      {/* CREATE TABLE SQL */}
-                      <div className="sql-section">
-                        <div className="sql-header">
-                          <h4>CREATE TABLE SQL:</h4>
-                          <button
-                            onClick={executeCreateSQL}
-                            disabled={createLoading}
-                            className="execute-btn create-btn"
-                          >
-                            {createLoading ? 'Running...' : 'Run CREATE'}
-                          </button>
-                        </div>
-                        <pre className="sql-code">{generatedSQL.create_sql}</pre>
-                        
-                        {/* CREATE Response */}
-                        {createResponse && (
-                          <div className={`sql-result ${createResponse.success ? 'success' : 'error'}`}>
-                            <strong>{createResponse.success ? '✅ Success' : '❌ Error'}:</strong> {createResponse.message}
-                            {createResponse.error && (
-                              <div className="error-details">
-                                <pre>{createResponse.error}</pre>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-
-                      {/* INSERT SQL */}
-                      <div className="sql-section">
-                        <div className="sql-header">
-                          <h4>INSERT SQL:</h4>
-                          <button
-                            onClick={executeInsertSQL}
-                            disabled={insertLoading}
-                            className="execute-btn insert-btn"
-                          >
-                            {insertLoading ? 'Running...' : 'Run INSERT'}
-                          </button>
-                        </div>
-                        <pre className="sql-code">{generatedSQL.insert_sql}</pre>
-                        
-                        {/* INSERT Response */}
-                        {insertResponse && (
-                          <div className={`sql-result ${insertResponse.success ? 'success' : 'error'}`}>
-                            <strong>{insertResponse.success ? '✅ Success' : '❌ Error'}:</strong> {insertResponse.message}
-                            {insertResponse.error && (
-                              <div className="error-details">
-                                <pre>{insertResponse.error}</pre>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="generation-error">
-                      <h3>❌ Generation Failed</h3>
-                      <p><strong>Error:</strong> {generatedSQL.error}</p>
-                    </div>
-                  )}
+              {/* CREATE TABLE SQL Section */}
+              <div className="sql-section">
+                <div className="sql-header">
+                  <h3>CREATE TABLE SQL</h3>
                 </div>
-              )}
-            </div>
+                
+                <div className="sql-content-area">
+                  <pre className="sql-code">
+                    {generatedSQL?.create_sql || '-- CREATE TABLE SQL will appear here after generating from YAML schema'}
+                  </pre>
+                </div>
+                
+                {/* CREATE Response */}
+                {createResponse && (
+                  <div className={`sql-result ${createResponse.success ? 'success' : 'error'}`}>
+                    <strong>{createResponse.success ? 'Success' : 'Error'}:</strong> {createResponse.message}
+                    {createResponse.error && (
+                      <div className="error-details">
+                        <pre>{createResponse.error}</pre>
+                      </div>
+                    )}
+                  </div>
+                )}
 
-            {/* SQL Query Interface */}
-            <div className="sql-interface">
-              <h2>🔧 SQL Query Executor</h2>
-              <div className="sql-form">
-                <textarea
-                  value={sqlQuery}
-                  onChange={(e) => setSqlQuery(e.target.value)}
-                  placeholder="Enter your SQL query here (CREATE TABLE, INSERT, etc.)..."
-                  className="sql-textarea"
-                  rows={6}
-                  disabled={sqlLoading}
-                />
                 <button
-                  onClick={executeSqlQuery}
-                  disabled={sqlLoading || !sqlQuery.trim()}
-                  className="sql-execute-btn"
+                  onClick={executeCreateSQL}
+                  disabled={createLoading || !generatedSQL?.create_sql}
+                  className="execute-btn create-btn"
                 >
-                  {sqlLoading ? 'Executing...' : 'Execute Query'}
+                  {createLoading ? 'Running...' : 'Run CREATE'}
                 </button>
               </div>
 
-              {/* SQL Response Display */}
-              {sqlResponse && (
-                <div className={`sql-response ${sqlResponse.success ? 'success' : 'error'}`}>
-                  <h3>{sqlResponse.success ? '✅ Success' : '❌ Error'}</h3>
-                  <p><strong>Message:</strong> {sqlResponse.message}</p>
-                  {sqlResponse.error && (
-                    <div className="error-details">
-                      <strong>Error Details:</strong>
-                      <pre>{sqlResponse.error}</pre>
-                    </div>
-                  )}
+              {/* INSERT SQL Section */}
+              <div className="sql-section">
+                <div className="sql-header">
+                  <h3>INSERT SQL</h3>
                 </div>
-              )}
+                
+                <div className="sql-content-area">
+                  <pre className="sql-code insert-sql">
+                    {generatedSQL?.insert_sql || '-- INSERT SQL with sample data will appear here after generating from YAML schema'}
+                  </pre>
+                </div>
+                
+                {/* INSERT Response */}
+                {insertResponse && (
+                  <div className={`sql-result ${insertResponse.success ? 'success' : 'error'}`}>
+                    <strong>{insertResponse.success ? 'Success' : 'Error'}:</strong> {insertResponse.message}
+                    {insertResponse.error && (
+                      <div className="error-details">
+                        <pre>{insertResponse.error}</pre>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <button
+                  onClick={executeInsertSQL}
+                  disabled={insertLoading || !generatedSQL?.insert_sql}
+                  className="execute-btn insert-btn"
+                >
+                  {insertLoading ? 'Running...' : 'Run INSERT'}
+                </button>
+              </div>
+
             </div>
           </div>
-        )}
       </header>
     </div>
   )

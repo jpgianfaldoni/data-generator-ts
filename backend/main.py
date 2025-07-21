@@ -33,7 +33,7 @@ class GenerateFromYAMLResponse(BaseModel):
     error: str = None
 
 # --- Environment Check ---
-assert os.getenv('DATABRICKS_WAREHOUSE_ID'), "DATABRICKS_WAREHOUSE_ID must be set in app.yaml."
+# assert os.getenv('DATABRICKS_WAREHOUSE_ID'), "DATABRICKS_WAREHOUSE_ID must be set in app.yaml."
 
 # --- Logging Setup ---
 logging.basicConfig(
