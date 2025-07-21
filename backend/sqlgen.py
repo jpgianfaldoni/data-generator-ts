@@ -32,7 +32,7 @@ class TableSchema:
         # Add each column
         primary_key_columns = []
         for i, col in enumerate(self.columns):
-            col_def = f"    {col.name} {col.type}"
+            col_def = f"{col.name} {col.type}"
             
             # Add NULL/NOT NULL constraint
             if not col.nullable or col.primary_key:
