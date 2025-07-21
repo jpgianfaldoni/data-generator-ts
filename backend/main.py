@@ -78,7 +78,6 @@ async def health_check():
 @app.post("/api/execute-sql")
 async def execute_sql(request: SQLQueryRequest) -> SQLQueryResponse:
     """Execute SQL DDL/DML query (CREATE TABLE, INSERT) endpoint"""
-    logger.info("SQL query execution requested")
     
     try:
         # Validate query
@@ -104,12 +103,10 @@ async def execute_sql(request: SQLQueryRequest) -> SQLQueryResponse:
         else:
             operation_type = "DDL/DML"
         
-        logger.info(f"Executing {operation_type} query: {query[:100]}...")
         
         # Execute the query
         sqlQuery(query)
         
-        logger.info(f"{operation_type} query executed successfully")
         return SQLQueryResponse(
             success=True,
             message=f"{operation_type} operation completed successfully"
