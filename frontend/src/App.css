@@ -373,6 +373,32 @@
   cursor: not-allowed;
 }
 
+.download-btn {
+  padding: 0.6rem 1.5rem;
+  background-color: #2196F3;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  margin-top: 0.5rem;
+  flex-shrink: 0;
+}
+
+.download-btn:hover:not(:disabled) {
+  background-color: #1976D2;
+  transform: translateY(-1px);
+}
+
+.download-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .sql-code {
   background-color: #1a1a1a;
   color: #f8f8f2;

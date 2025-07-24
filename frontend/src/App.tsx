@@ -166,6 +166,33 @@ columns:
     }
   }
 
+  const downloadCreateSQL = () => {
+    if (!generatedSQL?.create_sql) return
+    
+    const blob = new Blob([generatedSQL.create_sql], { type: 'text/sql' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = 'create_table.sql'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
+
+  const downloadInsertSQL = () => {
+    if (!generatedSQL?.insert_sql) return
+    
+    const blob = new Blob([generatedSQL.insert_sql], { type: 'text/sql' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = 'insert_data.sql'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
 
 
   return (
@@ -240,6 +267,14 @@ columns:
                 >
                   {createLoading ? 'Running...' : 'Run CREATE'}
                 </button>
+                
+                <button
+                  onClick={downloadCreateSQL}
+                  disabled={!generatedSQL?.create_sql}
+                  className="download-btn"
+                >
+                  Download CREATE
+                </button>
               </div>
 
               {/* INSERT SQL Section */}
@@ -272,6 +307,14 @@ columns:
                     className="execute-btn insert-btn"
                   >
                   {insertLoading ? 'Running...' : 'Run INSERT'}
+                </button>
+                
+                <button
+                  onClick={downloadInsertSQL}
+                  disabled={!generatedSQL?.insert_sql}
+                  className="download-btn"
+                >
+                  Download INSERT
                 </button>
               </div>
 
