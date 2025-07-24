@@ -181,9 +181,9 @@ columns:
   }
 
   const downloadInsertSQL = () => {
-    if (!generatedSQL?.insert_sql) return
+    if (!generatedSQL?.full_insert_sql) return
     
-    const blob = new Blob([generatedSQL.insert_sql], { type: 'text/sql' })
+    const blob = new Blob([generatedSQL.full_insert_sql], { type: 'text/sql' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
@@ -311,7 +311,7 @@ columns:
                 
                 <button
                   onClick={downloadInsertSQL}
-                  disabled={!generatedSQL?.insert_sql}
+                  disabled={!generatedSQL?.full_insert_sql}
                   className="download-btn"
                 >
                   Download INSERT
