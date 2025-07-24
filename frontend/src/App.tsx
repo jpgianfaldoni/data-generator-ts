@@ -15,6 +15,7 @@ interface GenerateFromYAMLResponse {
   success: boolean
   create_sql?: string
   insert_sql?: string
+  full_insert_sql?: string
   error?: string
 }
 
@@ -128,7 +129,10 @@ columns:
   }
 
   const executeInsertSQL = async () => {
-    if (!generatedSQL?.insert_sql) {
+    // Use full_insert_sql for execution, fallback to insert_sql if not available
+    const sqlToExecute = generatedSQL?.full_insert_sql || generatedSQL?.insert_sql;
+    
+    if (!sqlToExecute) {
       setInsertResponse({
         success: false,
         message: 'Execution failed',
@@ -146,7 +150,7 @@ columns:
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ query: generatedSQL.insert_sql }),
+        body: JSON.stringify({ query: sqlToExecute }),
       })
 
       const result: SQLQueryResponse = await response.json()
@@ -262,11 +266,11 @@ columns:
                   </div>
                 )}
 
-                <button
-                  onClick={executeInsertSQL}
-                  disabled={insertLoading || !generatedSQL?.insert_sql}
-                  className="execute-btn insert-btn"
-                >
+                                  <button
+                    onClick={executeInsertSQL}
+                    disabled={insertLoading || (!generatedSQL?.insert_sql && !generatedSQL?.full_insert_sql)}
+                    className="execute-btn insert-btn"
+                  >
                   {insertLoading ? 'Running...' : 'Run INSERT'}
                 </button>
               </div>

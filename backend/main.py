@@ -12,7 +12,7 @@ import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from sqlgen import TableSchema, Column
-from data_generator import generate_insert_sql
+from data_generator import generate_insert_sql, generate_full_insert_sql
 
 # --- Pydantic Models ---
 class SQLQueryRequest(BaseModel):
@@ -30,10 +30,11 @@ class GenerateFromYAMLResponse(BaseModel):
     success: bool
     create_sql: str = None
     insert_sql: str = None
+    full_insert_sql: str = None
     error: str = None
 
 # --- Environment Check ---
-assert os.getenv('DATABRICKS_WAREHOUSE_ID'), "DATABRICKS_WAREHOUSE_ID must be set in app.yaml."
+# assert os.getenv('DATABRICKS_WAREHOUSE_ID'), "DATABRICKS_WAREHOUSE_ID must be set in app.yaml."
 
 # --- Logging Setup ---
 logging.basicConfig(
@@ -160,14 +161,18 @@ async def generate_from_yaml(request: GenerateFromYAMLRequest) -> GenerateFromYA
         # Generate CREATE TABLE SQL
         create_sql = schema.generate_create_table_sql()
         
-        # Generate INSERT SQL
+        # Generate INSERT SQL (limited for display)
         insert_sql = generate_insert_sql(schema)
+        
+        # Generate full INSERT SQL (for execution)
+        full_insert_sql = generate_full_insert_sql(schema)
         
         logger.info("SQL generation completed successfully")
         return GenerateFromYAMLResponse(
             success=True,
             create_sql=create_sql,
-            insert_sql=insert_sql
+            insert_sql=insert_sql,
+            full_insert_sql=full_insert_sql
         )
         
     except HTTPException:

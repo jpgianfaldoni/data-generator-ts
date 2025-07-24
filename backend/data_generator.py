@@ -13,7 +13,73 @@ fake = Faker()
 
 
 def generate_insert_sql(schema: TableSchema) -> str:
-    """Generates Databricks SQL INSERT statements with random data"""
+    """Generates Databricks SQL INSERT statements with random data (limited to 5 rows for display)"""
+    if schema.rows <= 0:
+        return ""
+    
+    # Limit display to maximum 5 rows to prevent performance issues
+    display_rows = min(schema.rows, 5)
+    
+    # Build the table name with optional catalog and schema
+    table_name = build_table_name(schema.catalog, schema.schema, schema.table_name)
+    
+    # Build column names for INSERT statement
+    column_names = [col.name for col in schema.columns]
+    
+    # Start INSERT statement
+    sql_parts = [f"INSERT INTO {table_name} ("]
+    
+    # Add column names with proper formatting
+    for i, col_name in enumerate(column_names):
+        indent = "    "
+        col_line = f"{indent}{col_name}"
+        if i < len(column_names) - 1:
+            col_line += ","
+        sql_parts.append(col_line)
+    
+    sql_parts.append(")")
+    sql_parts.append("VALUES")
+    
+    # Initialize primary key counters
+    primary_key_counters: Dict[str, int] = {}
+    for col in schema.columns:
+        if col.primary_key:
+            primary_key_counters[col.name] = 1  # Start from 1 for primary keys
+    
+    # Generate random data for each row (limited to display_rows)
+    for row_index in range(display_rows):
+        row_values = []
+        
+        # Generate value for each column
+        for col in schema.columns:
+            if col.primary_key:
+                # Generate incremental value for primary key
+                value = generate_primary_key_value(col.type, primary_key_counters[col.name])
+                primary_key_counters[col.name] += 1
+            else:
+                # Generate random value for non-primary key columns
+                value = generate_random_value(col.name, col.type, col.nullable)
+            row_values.append(value)
+        
+        # Format row values with proper indentation
+        row_sql = f"    ({', '.join(row_values)})"
+        
+        # Add comma if not last row
+        if row_index < display_rows - 1:
+            row_sql += ","
+        
+        sql_parts.append(row_sql)
+    
+    # Add comment if we're showing fewer rows than requested
+    if schema.rows > 5:
+        sql_parts.append(f"-- Showing first 5 rows (total: {schema.rows} rows)")
+    
+    sql_parts.append(";")
+    return "\n".join(sql_parts)
+
+
+def generate_full_insert_sql(schema: TableSchema) -> str:
+    """Generates complete INSERT SQL with all rows for execution"""
     if schema.rows <= 0:
         return ""
     
@@ -24,7 +90,18 @@ def generate_insert_sql(schema: TableSchema) -> str:
     column_names = [col.name for col in schema.columns]
     
     # Start INSERT statement
-    sql_parts = [f"INSERT INTO {table_name} ({', '.join(column_names)}) VALUES"]
+    sql_parts = [f"INSERT INTO {table_name} ("]
+    
+    # Add column names with proper formatting
+    for i, col_name in enumerate(column_names):
+        indent = "    "
+        col_line = f"{indent}{col_name}"
+        if i < len(column_names) - 1:
+            col_line += ","
+        sql_parts.append(col_line)
+    
+    sql_parts.append(")")
+    sql_parts.append("VALUES")
     
     # Initialize primary key counters
     primary_key_counters: Dict[str, int] = {}
@@ -32,7 +109,7 @@ def generate_insert_sql(schema: TableSchema) -> str:
         if col.primary_key:
             primary_key_counters[col.name] = 1  # Start from 1 for primary keys
     
-    # Generate random data for each row
+    # Generate random data for ALL rows
     for row_index in range(schema.rows):
         row_values = []
         
@@ -47,7 +124,8 @@ def generate_insert_sql(schema: TableSchema) -> str:
                 value = generate_random_value(col.name, col.type, col.nullable)
             row_values.append(value)
         
-        row_sql = f"  ({', '.join(row_values)})"
+        # Format row values with proper indentation
+        row_sql = f"    ({', '.join(row_values)})"
         
         # Add comma if not last row
         if row_index < schema.rows - 1:
