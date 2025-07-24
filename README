@@ -78,59 +78,6 @@ VALUES
     -- ... up to 10,000 realistic rows
 ```
 
-## Setup
-
-### Prerequisites
-- Python 3.8+
-- Node.js 16+
-- Databricks workspace with SQL warehouse access
-
-### 1. Install Dependencies
-
-**Python Backend:**
-```bash
-pip install -r requirements.txt
-```
-
-**Node.js Frontend:**
-```bash
-npm install
-```
-
-### 2. Databricks Configuration
-
-Set up environment variables in `app.yaml` or your environment:
-```yaml
-DATABRICKS_WAREHOUSE_ID: "your-warehouse-id"
-DATABRICKS_TOKEN: "your-access-token"
-DATABRICKS_SERVER_HOSTNAME: "your-workspace.databricks.com"
-```
-
-## Development
-
-### 1. Start FastAPI Backend
-```bash
-uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000
-```
-
-### 2. Start React Development Server
-```bash
-npm run dev
-```
-
-- **Frontend**: http://localhost:5173
-- **Backend API**: http://localhost:8000/docs
-
-## Production Deployment
-
-### Build and Run
-```bash
-# Build React frontend
-npm run build
-
-# Start production server
-uvicorn backend.main:app --host 0.0.0.0 --port 8000
-```
 
 ### Databricks Apps Deployment
 Configured for Databricks Apps platform with `app.yaml`. Automatically uses `DATABRICKS_APP_PORT` environment variable.
