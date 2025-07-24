@@ -1,57 +1,137 @@
-# Node.js + FastAPI Hello World App
+# Databricks SQL Schema & Data Generator
 
-A simple hello world template that demonstrates how to build full-stack applications using Node.js (React) frontend with FastAPI backend for Databricks Apps.
+A powerful Databricks application for generating SQL table schemas and realistic test data from YAML definitions. Built with React frontend and FastAPI backend, featuring high-performance multiprocessing for large datasets.
+
+## Features
+
+🏗️ **Schema Definition**: Define table schemas using intuitive YAML syntax  
+🔧 **SQL Generation**: Automatically generates Databricks CREATE TABLE statements  
+📊 **Test Data**: Creates realistic INSERT statements with contextual fake data  
+⚡ **High Performance**: Multiprocessing support for datasets with 50,000+ rows  
+🎯 **Databricks Integration**: Execute SQL directly against Databricks warehouses  
+💾 **Export Options**: Download generated SQL files for external use  
+🖥️ **Modern UI**: Responsive React interface with real-time preview  
 
 ## Architecture
 
 ```
 React Frontend (TypeScript + Vite)
-    ↓ API calls
-FastAPI Backend (Python)
-    ↓ Serves static files + API
-Databricks Apps
+    ↓ YAML Schema Input
+FastAPI Backend (Python + Multiprocessing)
+    ↓ SQL Generation + Execution
+Databricks SQL Warehouses
+```
+
+## Sample YAML Schema
+
+```yaml
+table_name: customers
+catalog: my_catalog
+schema: sales
+rows: 10000
+columns:
+  - name: id
+    type: BIGINT
+    nullable: false
+    primary_key: true
+  - name: email
+    type: STRING
+    nullable: false
+    comment: "Customer email address"
+  - name: first_name
+    type: STRING
+    nullable: false
+  - name: company
+    type: STRING
+    nullable: true
+  - name: created_at
+    type: TIMESTAMP
+    nullable: false
+```
+
+## Generated Output
+
+**CREATE TABLE SQL:**
+```sql
+CREATE TABLE my_catalog.sales.customers (
+    id BIGINT NOT NULL,
+    email STRING NOT NULL COMMENT "Customer email address",
+    first_name STRING NOT NULL,
+    company STRING,
+    created_at TIMESTAMP NOT NULL,
+    PRIMARY KEY (id)
+);
+```
+
+**INSERT SQL with Realistic Data:**
+```sql
+INSERT INTO my_catalog.sales.customers (
+    id,
+    email,
+    first_name,
+    company,
+    created_at
+)
+VALUES
+    (1, 'john.doe@example.com', 'John', 'Tech Corp', '2024-01-15 10:30:00'),
+    (2, 'jane.smith@company.com', 'Jane', 'Data Inc', '2024-01-16 14:45:00'),
+    -- ... up to 10,000 realistic rows
 ```
 
 ## Setup
 
-1. **Install Python dependencies:**
+### Prerequisites
+- Python 3.8+
+- Node.js 16+
+- Databricks workspace with SQL warehouse access
+
+### 1. Install Dependencies
+
+**Python Backend:**
 ```bash
 pip install -r requirements.txt
 ```
 
-2. **Install Node.js dependencies:**
+**Node.js Frontend:**
 ```bash
 npm install
 ```
 
+### 2. Databricks Configuration
+
+Set up environment variables in `app.yaml` or your environment:
+```yaml
+DATABRICKS_WAREHOUSE_ID: "your-warehouse-id"
+DATABRICKS_TOKEN: "your-access-token"
+DATABRICKS_SERVER_HOSTNAME: "your-workspace.databricks.com"
+```
+
 ## Development
 
-1. **Start FastAPI backend:**
+### 1. Start FastAPI Backend
 ```bash
 uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-2. **In another terminal, start React dev server:**
+### 2. Start React Development Server
 ```bash
 npm run dev
 ```
 
-- Frontend: http://localhost:5173 (with API proxy)
-- Backend API docs: http://localhost:8000/docs
+- **Frontend**: http://localhost:5173
+- **Backend API**: http://localhost:8000/docs
 
-## Production
+## Production Deployment
 
-Build and run:
+### Build and Run
 ```bash
+# Build React frontend
 npm run build
+
+# Start production server
 uvicorn backend.main:app --host 0.0.0.0 --port 8000
 ```
 
-## Databricks Apps Deployment
+### Databricks Apps Deployment
+Configured for Databricks Apps platform with `app.yaml`. Automatically uses `DATABRICKS_APP_PORT` environment variable.
 
-Configured for Databricks Apps with `app.yaml`. Uses `DATABRICKS_APP_PORT` environment variable automatically.
-
-## API
-
-- `GET /api/hello` - Hello world message
-- `GET /docs` - FastAPI interactive documentation
